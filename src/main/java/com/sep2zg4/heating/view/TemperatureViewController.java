@@ -20,7 +20,7 @@ public class TemperatureViewController
   private Region root;
 
   @FXML public void openSettings() {
-
+    viewHandler.openView(ViewHandler.SETTINGS);
   }
 
   public void init(ViewHandler viewHandler, TemperatureViewModel viewModel, Region root) {

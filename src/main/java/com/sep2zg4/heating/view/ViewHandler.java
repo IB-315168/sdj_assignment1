@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 public class ViewHandler
 {
   public static final String TEMP = "temperature";
-  public static final String WINDOW2 = "window2";
+  public static final String SETTINGS = "settings";
 
   private final Scene currentScene;
   private Stage primaryStage;
@@ -27,7 +27,7 @@ public class ViewHandler
   public void openView(String id) {
     Region root = switch(id) {
       case TEMP -> viewFactory.loadTemperatureView();
-//      case MESSAGE -> viewFactory.loadMessageView();
+      case SETTINGS -> viewFactory.loadSettingsView();
       default -> throw new IllegalArgumentException("Unknown view: " + id);
     };
     currentScene.setRoot(root);
