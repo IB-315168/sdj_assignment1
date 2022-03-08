@@ -6,6 +6,7 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.scene.control.Alert;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -31,20 +32,26 @@ public class SettingsViewModel implements PropertyChangeListener
     outTemperatureList = new SimpleListProperty();
   }
 
-  public void setHot() {
-    model.setHot(Double.parseDouble(hotField.get()));
-  }
-
-  public void setCold() {
-    model.setCold(Double.parseDouble(coldField.get()));
+  public void setHotCold()
+  {
+    try {
+      model.setHotColdValues(Double.parseDouble(hotField.get()), Double.parseDouble(coldField.get()));
+    } catch (Exception e) {
+      Alert alert = new Alert(Alert.AlertType.ERROR);
+      alert.setContentText(e.getMessage());
+      alert.show();
+    }
   }
 
   public void getValues() {
-    hotField.set(String.valueOf(model.getHot()));
-    coldField.set(String.valueOf(model.getCold()));
     inTemperatureList1.set(model.getAllRecords("it1"));
     inTemperatureList2.set(model.getAllRecords("it2"));
     outTemperatureList.set(model.getAllRecords("ot"));
+  }
+
+  public void getHCValues() {
+    hotField.set(String.valueOf(model.getHot()));
+    coldField.set(String.valueOf(model.getCold()));
   }
 
   public StringProperty getHotField() { return hotField; }

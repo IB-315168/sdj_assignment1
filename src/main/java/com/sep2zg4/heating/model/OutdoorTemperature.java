@@ -21,7 +21,7 @@ public class OutdoorTemperature implements Runnable
     t0 += sign * Math.random();
   }
 
-  public double getTemperature()
+  public synchronized double getTemperature()
   {
     return t0;
   }

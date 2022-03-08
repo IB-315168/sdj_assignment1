@@ -9,4 +9,5 @@ module com.sep2zg4 {
   exports com.sep2zg4.heating.viewmodel;
   exports com.sep2zg4.heating.model;
   exports com.sep2zg4.heating;
+  exports com.sep2zg4.heating.model.heating;
 }

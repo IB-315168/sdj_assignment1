@@ -1,8 +1,9 @@
 package com.sep2zg4.heating.model;
 
+import com.sep2zg4.heating.model.heating.Heater;
+import com.sep2zg4.heating.model.heating.Max;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableListBase;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -14,15 +15,19 @@ import java.util.List;
 public class TemperatureModelManager implements TemperatureModel
 {
   private HashMap<String, ArrayList<Double>> temperatures;
+  private List<Monitor> monitors;
   private int heaterPower;
   private double cold;
   private double hot;
   private PropertyChangeSupport support;
+  private Heater heater;
 
   public TemperatureModelManager() {
     this.temperatures = new HashMap<>();
+    this.monitors = new ArrayList<>();
     this.support = new PropertyChangeSupport(this);
     this.heaterPower = 0;
+    this.heater = new Heater();
 
     temperatures.put("it1", new ArrayList<>());
     temperatures.put("it2", new ArrayList<>());
@@ -34,7 +39,15 @@ public class TemperatureModelManager implements TemperatureModel
   }
 
   public void removeListener(PropertyChangeListener listener) {
-    support.addPropertyChangeListener(listener);
+    support.removePropertyChangeListener(listener);
+  }
+
+  public void addObserver(Monitor monitor) {
+    this.monitors.add(monitor);
+  }
+
+  public void removeObserver(Monitor monitor) {
+    this.monitors.remove(monitor);
   }
 
   public void addRecord(String id, double t) {
@@ -42,9 +55,19 @@ public class TemperatureModelManager implements TemperatureModel
       double old = (double) getLastRecord(id);
       temperatures.get(id).add(t);
       support.firePropertyChange(new PropertyChangeEvent(this, id, old, t));
+      setState(id, t);
     } else {
       temperatures.get(id).add(t);
       support.firePropertyChange(new PropertyChangeEvent(this, id, null, t));
+      setState(id, t);
+    }
+  }
+
+  private void setState(String id, double temp) {
+    for(Monitor monitor : monitors) {
+      if(monitor.getId().equals(id)) {
+        monitor.onTempChange(temp);
+      }
     }
   }
 
@@ -60,17 +83,29 @@ public class TemperatureModelManager implements TemperatureModel
     return FXCollections.observableList(temperatures.get(id));
   }
 
-  public void setPower(int p) {
+  public Heater getHeater() {
+    return heater;
+  }
+
+  public void setPower(int p)
+  {
     int old = heaterPower;
     heaterPower = p;
+    if(old < p) {
+      heater.nextState();
+    }
+    if(old > p) {
+      heater.prevState();
+    }
     support.firePropertyChange(new PropertyChangeEvent(this, "power", old, p));
   }
 
-  public void setHot(double hot) {
-    this.hot = hot;
-  }
+  public void setHotColdValues(double hot, double cold) throws IllegalArgumentException {
+    if(hot <= cold) {
+      throw new IllegalArgumentException("Cold value cannot be lower than hot.");
+    }
 
-  public void setCold(double cold) {
+    this.hot = hot;
     this.cold = cold;
   }
 

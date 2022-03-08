@@ -16,9 +16,9 @@ public class Start extends Application
     TemperatureModel temperatureModel = new TemperatureModelManager();
     ViewModelFactory viewModelFactory = new ViewModelFactory(temperatureModel);
     ViewHandler viewHandler = new ViewHandler(viewModelFactory);
-    IndoorTemperature inTemp1 = new IndoorTemperature("it1", 15, 1, 6, temperatureModel);
-    IndoorTemperature inTemp2 = new IndoorTemperature("it2", 15, 7, 6, temperatureModel);
     OutdoorTemperature outTemp = new OutdoorTemperature("ot", 6, temperatureModel);
+    IndoorTemperature inTemp1 = new IndoorTemperature("it1", 15, 1, outTemp, temperatureModel);
+    IndoorTemperature inTemp2 = new IndoorTemperature("it2", 15, 7, outTemp, temperatureModel);
     Thread t1 = new Thread(inTemp1);
     Thread t2 = new Thread(inTemp2);
     Thread t3 = new Thread(outTemp);

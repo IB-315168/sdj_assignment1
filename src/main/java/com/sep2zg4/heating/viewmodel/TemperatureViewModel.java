@@ -1,5 +1,6 @@
 package com.sep2zg4.heating.viewmodel;
 
+import com.sep2zg4.heating.model.TempMonitor;
 import com.sep2zg4.heating.model.TemperatureModel;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -9,7 +10,6 @@ import javafx.beans.value.ObservableValue;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 
 public class TemperatureViewModel implements ChangeListener,
     PropertyChangeListener
@@ -19,17 +19,29 @@ public class TemperatureViewModel implements ChangeListener,
   private StringProperty inTemperature1;
   private StringProperty inTemperature2;
   private StringProperty outTemperature;
-  private StringProperty error;
+  private StringProperty stateTemp1;
+  private StringProperty stateTemp2;
+  private TempMonitor tempMonitor1;
+  private TempMonitor tempMonitor2;
 
   public TemperatureViewModel(TemperatureModel model) {
     this.model = model;
+    this.tempMonitor1 = new TempMonitor(model, "it1");
+    this.tempMonitor2 = new TempMonitor(model, "it2");
 
     model.addListener(this);
+
     heaterPosition = new SimpleStringProperty("OFF");
     inTemperature1 = new SimpleStringProperty("");
     inTemperature2 = new SimpleStringProperty("");
     outTemperature = new SimpleStringProperty("");
-    error = new SimpleStringProperty("");
+    stateTemp1 = new SimpleStringProperty("");
+    stateTemp2 = new SimpleStringProperty("");
+
+    model.addObserver(tempMonitor1);
+    model.addObserver(tempMonitor2);
+    stateTemp1.bindBidirectional(tempMonitor1.getReading());
+    stateTemp2.bindBidirectional(tempMonitor2.getReading());
   }
 
   public void getValue(String id) {
@@ -47,16 +59,6 @@ public class TemperatureViewModel implements ChangeListener,
         break;
       }
     }
-  }
-
-  public String getHeaterPosition(int id) {
-    switch (id) {
-      case 0 -> { return "OFF"; }
-      case 1 -> { return "LOW"; }
-      case 2 -> { return "MEDIUM"; }
-      case 3 -> { return "MAX"; }
-    }
-    return "Unknown";
   }
 
   public StringProperty getHeaterPositionProperty() {
@@ -78,16 +80,25 @@ public class TemperatureViewModel implements ChangeListener,
     return outTemperature;
   }
 
-  public StringProperty getErrorProperty()
+  public StringProperty getTemp1Property()
   {
-    return error;
+    return stateTemp1;
   }
+
+  public StringProperty getTemp2Property() { return stateTemp2; }
 
   @Override public void changed(ObservableValue observableValue, Object o,
       Object t1)
   {
-    heaterPosition.set(getHeaterPosition((int) Math.round((Double) t1)));
-    model.setPower((int) Math.round((Double) t1));
+    try
+    {
+      model.setPower((int) Math.round((Double) t1));
+    }
+    catch (InterruptedException e)
+    {
+      e.printStackTrace();
+    }
+    heaterPosition.set(model.getHeater().getState().status());
   }
 
   @Override public void propertyChange(PropertyChangeEvent evt)

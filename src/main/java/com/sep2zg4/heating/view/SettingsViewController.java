@@ -18,8 +18,13 @@ public class SettingsViewController
   private SettingsViewModel viewModel;
   private Region root;
 
+  @FXML public void goBack() {
+    viewHandler.closeView();
+    viewHandler.openView(ViewHandler.TEMP);
+  }
+
   @FXML public void saveSettings() {
-    viewModel.getValues();
+    viewModel.setHotCold();
   }
 
   public void init(ViewHandler viewHandler, SettingsViewModel viewModel, Region root) {
@@ -32,6 +37,7 @@ public class SettingsViewController
     this.inTemperatureListView1.itemsProperty().bindBidirectional(viewModel.getInTemperatureList1());
     this.inTemperatureListView2.itemsProperty().bindBidirectional(viewModel.getInTemperatureList2());
     this.outTemperatureListView.itemsProperty().bindBidirectional(viewModel.getOutTemperatureList());
+    viewModel.getHCValues();
   }
 
   public Region getRoot() {
@@ -39,6 +45,6 @@ public class SettingsViewController
   }
 
   public void reset() {
-
+    viewModel.getHCValues();
   }
 }

@@ -1,5 +1,7 @@
 package com.sep2zg4.heating.model;
 
+import javafx.application.Platform;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -11,30 +13,23 @@ public class IndoorTemperature implements Runnable, PropertyChangeListener
   private int d;
   private double t0;
   private int s = 6;
+  private OutdoorTemperature outTemperature;
   private TemperatureModel model;
 
-  public IndoorTemperature(String id, double t, int d, double t0, TemperatureModel model)
+  public IndoorTemperature(String id, double t, int d, OutdoorTemperature outTemperature, TemperatureModel model)
   {
     this.id = id;
     this.t = t;
     this.p = 0;
     this.d = d;
-    this.t0 = t0;
+    this.outTemperature = outTemperature;
     this.model = model;
 
     model.addListener(this);
   }
 
-  public double getTemperature() {
-    return t;
-  }
-
   public void setPower(int p) {
     this.p = p;
-  }
-
-  public void setOutdoorTemperature(double t0) {
-    this.t0 = t0;
   }
 
   private double temperature(double t, int p, int d, double t0, int s)
@@ -55,8 +50,15 @@ public class IndoorTemperature implements Runnable, PropertyChangeListener
   @Override public void run()
   {
     while(true) {
+      t0 = outTemperature.getTemperature();
       t = temperature(t, p, d, t0, s);
-      model.addRecord(id, t);
+      Platform.runLater(new Runnable()
+      {
+        @Override public void run()
+        {
+          model.addRecord(id, t);
+        }
+      });
       try
       {
         Thread.sleep(s * 1000L);

@@ -13,7 +13,8 @@ public class TemperatureViewController
   @FXML private Label outTemp;
   @FXML private Slider heaterSlider;
   @FXML private Label heaterPosition;
-  @FXML private Label errorLabel;
+  @FXML private Label tempLabel1;
+  @FXML private Label tempLabel2;
 
   private ViewHandler viewHandler;
   private TemperatureViewModel viewModel;
@@ -37,7 +38,8 @@ public class TemperatureViewController
         viewModel.getOutTemperatureProperty());
     heaterPosition.textProperty().bindBidirectional(
         viewModel.getHeaterPositionProperty());
-    errorLabel.textProperty().bindBidirectional(viewModel.getErrorProperty());
+    tempLabel1.textProperty().bindBidirectional(viewModel.getTemp1Property());
+    tempLabel2.textProperty().bindBidirectional(viewModel.getTemp2Property());
     System.out.println(heaterSlider.getValue());
   }
 
