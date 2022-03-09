@@ -1,6 +1,6 @@
 package com.sep2zg4.heating.model;
 
-import com.sep2zg4.heating.model.heating.Heater;
+import com.sep2zg4.heating.model.heatstate.Heater;
 import javafx.collections.ObservableList;
 
 import java.beans.PropertyChangeListener;
@@ -15,8 +15,9 @@ public interface TemperatureModel
   public Object getLastRecord(String id);
   public ObservableList<Double> getAllRecords(String id);
   public Heater getHeater();
-  public void setPower(int p) throws InterruptedException;
-  public void setHotColdValues(double hot, double cold);
+  public void setPower(int p);
+  public Double getPower();
+  public void setHotColdValues(double hot, double cold) throws IllegalArgumentException;
   public double getHot();
   public double getCold();
 }

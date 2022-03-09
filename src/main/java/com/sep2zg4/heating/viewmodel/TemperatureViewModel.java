@@ -3,6 +3,8 @@ package com.sep2zg4.heating.viewmodel;
 import com.sep2zg4.heating.model.TempMonitor;
 import com.sep2zg4.heating.model.TemperatureModel;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -21,6 +23,7 @@ public class TemperatureViewModel implements ChangeListener,
   private StringProperty outTemperature;
   private StringProperty stateTemp1;
   private StringProperty stateTemp2;
+  private DoubleProperty heaterValue;
   private TempMonitor tempMonitor1;
   private TempMonitor tempMonitor2;
 
@@ -32,6 +35,7 @@ public class TemperatureViewModel implements ChangeListener,
     model.addListener(this);
 
     heaterPosition = new SimpleStringProperty("OFF");
+    heaterValue = new SimpleDoubleProperty(0);
     inTemperature1 = new SimpleStringProperty("");
     inTemperature2 = new SimpleStringProperty("");
     outTemperature = new SimpleStringProperty("");
@@ -42,6 +46,7 @@ public class TemperatureViewModel implements ChangeListener,
     model.addObserver(tempMonitor2);
     stateTemp1.bindBidirectional(tempMonitor1.getReading());
     stateTemp2.bindBidirectional(tempMonitor2.getReading());
+
   }
 
   public void getValue(String id) {
@@ -87,17 +92,12 @@ public class TemperatureViewModel implements ChangeListener,
 
   public StringProperty getTemp2Property() { return stateTemp2; }
 
+  public DoubleProperty getHeaterValue() { return heaterValue; }
+
   @Override public void changed(ObservableValue observableValue, Object o,
       Object t1)
   {
-    try
-    {
-      model.setPower((int) Math.round((Double) t1));
-    }
-    catch (InterruptedException e)
-    {
-      e.printStackTrace();
-    }
+    model.setPower((int) Math.round((Double) t1));
     heaterPosition.set(model.getHeater().getState().status());
   }
 
@@ -105,10 +105,15 @@ public class TemperatureViewModel implements ChangeListener,
   {
     Platform.runLater(new Runnable()
     {
-      //TODO is it actually a good idea to use id as propertyname?
       @Override public void run()
       {
-        getValue(evt.getPropertyName());
+        if(evt.getPropertyName().equals("power")) {
+          heaterPosition.set(model.getHeater().getState().status());
+          heaterValue.set(model.getPower());
+        }
+        else {
+          getValue(evt.getPropertyName());
+        }
       }
     });
   }

@@ -1,4 +1,4 @@
-package com.sep2zg4.heating.model.heating;
+package com.sep2zg4.heating.model.heatstate;
 
 public class Off implements State
 {

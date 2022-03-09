@@ -1,7 +1,8 @@
 package com.sep2zg4.heating.model;
 
-import com.sep2zg4.heating.model.heating.Heater;
-import com.sep2zg4.heating.model.heating.Max;
+import com.sep2zg4.heating.model.heatstate.Heater;
+import com.sep2zg4.heating.viewmodel.TemperatureViewModel;
+import javafx.beans.property.DoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -27,30 +28,30 @@ public class TemperatureModelManager implements TemperatureModel
     this.monitors = new ArrayList<>();
     this.support = new PropertyChangeSupport(this);
     this.heaterPower = 0;
-    this.heater = new Heater();
+    this.heater = new Heater(this);
 
     temperatures.put("it1", new ArrayList<>());
     temperatures.put("it2", new ArrayList<>());
     temperatures.put("ot", new ArrayList<>());
   }
 
-  public void addListener(PropertyChangeListener listener) {
+  @Override public void addListener(PropertyChangeListener listener) {
     support.addPropertyChangeListener(listener);
   }
 
-  public void removeListener(PropertyChangeListener listener) {
+  @Override public void removeListener(PropertyChangeListener listener) {
     support.removePropertyChangeListener(listener);
   }
 
-  public void addObserver(Monitor monitor) {
+  @Override public void addObserver(Monitor monitor) {
     this.monitors.add(monitor);
   }
 
-  public void removeObserver(Monitor monitor) {
+  @Override public void removeObserver(Monitor monitor) {
     this.monitors.remove(monitor);
   }
 
-  public void addRecord(String id, double t) {
+  @Override public void addRecord(String id, double t) {
     if(getLastRecord(id) != null) {
       double old = (double) getLastRecord(id);
       temperatures.get(id).add(t);
@@ -71,7 +72,7 @@ public class TemperatureModelManager implements TemperatureModel
     }
   }
 
-  public Object getLastRecord(String id) {
+  @Override public Object getLastRecord(String id) {
     if(temperatures.get(id).size() < 1) {
       return null;
     }
@@ -83,24 +84,34 @@ public class TemperatureModelManager implements TemperatureModel
     return FXCollections.observableList(temperatures.get(id));
   }
 
-  public Heater getHeater() {
+  @Override public Heater getHeater() {
     return heater;
   }
 
-  public void setPower(int p)
+  @Override public void setPower(int p)
   {
+    StackWalker walker = StackWalker
+        .getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
     int old = heaterPower;
     heaterPower = p;
-    if(old < p) {
-      heater.nextState();
-    }
-    if(old > p) {
-      heater.prevState();
+    if(walker.getCallerClass().getName().equals(TemperatureViewModel.class.getName())) {
+      if(old < p) {
+        heater.nextState();
+        System.out.println(heater.getState().status());
+      }
+      if(old > p) {
+        heater.prevState();
+        System.out.println(heater.getState().status());
+      }
     }
     support.firePropertyChange(new PropertyChangeEvent(this, "power", old, p));
   }
 
-  public void setHotColdValues(double hot, double cold) throws IllegalArgumentException {
+  public Double getPower() {
+    return (double) heaterPower;
+  }
+
+  @Override public void setHotColdValues(double hot, double cold) throws IllegalArgumentException {
     if(hot <= cold) {
       throw new IllegalArgumentException("Cold value cannot be lower than hot.");
     }

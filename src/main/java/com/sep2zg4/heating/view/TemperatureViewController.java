@@ -30,6 +30,7 @@ public class TemperatureViewController
     this.root = root;
 
     heaterSlider.valueProperty().addListener(viewModel);
+    heaterSlider.valueProperty().bindBidirectional(viewModel.getHeaterValue());
     inTemp1.textProperty().bindBidirectional(
         viewModel.getInTemperature1Property());
     inTemp2.textProperty().bindBidirectional(
@@ -40,7 +41,6 @@ public class TemperatureViewController
         viewModel.getHeaterPositionProperty());
     tempLabel1.textProperty().bindBidirectional(viewModel.getTemp1Property());
     tempLabel2.textProperty().bindBidirectional(viewModel.getTemp2Property());
-    System.out.println(heaterSlider.getValue());
   }
 
   public Region getRoot() {
